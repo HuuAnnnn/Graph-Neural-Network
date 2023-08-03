@@ -50,6 +50,10 @@ class GCN(nn.Module):
         relu = nn.ReLU()
         return relu(z)
 
+    def __str__(self):
+        input_size, output_size = self.W.shape
+        return f"{GCN.__name__}({input_size}, {output_size})"
+
 
 if __name__ == "__main__":
     X = torch.FloatTensor(
@@ -61,4 +65,5 @@ if __name__ == "__main__":
         ]
     )
     gcn = GCN(3, 1)
+    print(gcn)
     print(gcn(X, [[0, 1, 1, 2], [1, 2, 3, 3]]))
