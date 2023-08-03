@@ -54,6 +54,10 @@ class GCN(nn.Module):
         input_size, output_size = self.W.shape
         return f"{GCN.__name__}({input_size}, {output_size})"
 
+    def __repr__(self):
+        input_size, output_size = self.W.shape
+        return f"{GCN.__name__}({input_size}, {output_size})"
+
 
 if __name__ == "__main__":
     X = torch.FloatTensor(
