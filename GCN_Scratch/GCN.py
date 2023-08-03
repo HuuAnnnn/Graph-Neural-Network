@@ -12,7 +12,7 @@ class GCN(nn.Module):
     ) -> None:
         super(GCN, self).__init__()
         w = torch.empty(input_size, output_size)
-        self.W = nn.init.kaiming_normal_(w)
+        self.W = nn.Parameter(nn.init.kaiming_normal_(w))
 
     def _extract_D_I_from_edge_list(self, edges, number_of_nodes):
         D = torch.zeros((number_of_nodes, number_of_nodes))
@@ -61,4 +61,4 @@ if __name__ == "__main__":
         ]
     )
     gcn = GCN(3, 1)
-    print(gcn(X, [[0, 1], [1, 0], [1, 2], [2, 3]]))
+    print(gcn(X, [[0, 1, 1, 2], [1, 2, 3, 3]]))
