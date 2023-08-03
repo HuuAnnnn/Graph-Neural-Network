@@ -4,20 +4,13 @@ from torch import nn
 from torch.nn import functional as F
 
 from torch_geometric import datasets
-from torch_geometric.data import DataLoader
 from torch_geometric.transforms import NormalizeFeatures
 from torch_geometric.nn import GCNConv
 
-import networkx as nx
 import pandas as pd
 import os
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
 import sys
-import hydra
 from hydra import compose, initialize
-
 
 from models import GNN
 
@@ -71,4 +64,13 @@ if __name__ == "__main__":
         config.model.latent_dim,
         cora.num_classes,
     )
-    print(model)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    dataset.to(device=device)
+    model.to(device=device)
+
+    optimizer = optim.Adam(model.parameters())
+    loss = nn.CrossEntropyLoss()
+
+    model.compile(optimizer=optimizer, loss=loss)
+    model.fit(config.training.epochs, dataset=dataset)

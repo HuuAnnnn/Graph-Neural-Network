@@ -44,8 +44,8 @@ class GNN(nn.Module):
         self.criterion = loss
 
     def fit(self, epochs: int = 1, dataset=None, verbose: int = 1):
-        assert self.optimizer == None
-        assert self.criterion == None
+        assert self.optimizer != None
+        assert self.criterion != None
 
         history = {"epoch": [], "loss": []}
 
