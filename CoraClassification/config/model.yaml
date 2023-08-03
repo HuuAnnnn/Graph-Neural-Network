@@ -1,7 +1,8 @@
 dataset:
   name: Cora
   save_path: .
-gcn_model:
+model:
+  name: "scratch"
   latent_dim: 256
 training:
   train_size_ratio: 0.8
