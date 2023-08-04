@@ -1,9 +1,13 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
+from loguru import logger
+
 
 class GNN(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, base_layer = None) -> None:
+    def __init__(
+        self, input_size, hidden_size, output_size, base_layer=None
+    ) -> None:
         """The module is a GNN model which is based on the GCN layer
 
         Parameters
@@ -38,7 +42,7 @@ class GNN(nn.Module):
 
     def get_parameters(self):
         return sum(parameter.numel() for parameter in self.parameters())
-      
+
     def compile(self, optimizer, loss):
         self.optimizer = optimizer
         self.criterion = loss
@@ -48,7 +52,7 @@ class GNN(nn.Module):
         assert self.criterion != None
 
         history = {"epoch": [], "loss": []}
-
+        logger.critical("Start training!")
         for epoch in range(1, epochs + 1):
             self.train()
             self.optimizer.zero_grad()
@@ -63,8 +67,10 @@ class GNN(nn.Module):
             history["loss"].append(loss.cpu().detach().item())
 
             if (epoch - 1) % verbose == 0:
-                print(f"Epoch {epoch} | Loss: {loss.item()}")
+                logger.info(f"Epoch {epoch} | Loss: {loss.item()}")
+        logger.critical("Stop training!")
 
+        return history
 
     def __str__(self):
         return (

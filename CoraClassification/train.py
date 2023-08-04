@@ -11,6 +11,7 @@ import pandas as pd
 import os
 import sys
 from hydra import compose, initialize
+from loguru import logger
 
 from models import GNN
 
@@ -51,9 +52,18 @@ def build_model(config, input_size, hidden_size, output_size):
     return model
 
 
+def save_history(path, name, history):
+    if not os.path.exists(path):
+        os.makedir(path)
+
+    history_df = pd.DataFrame(history)
+    history_df.to_csv(os.path.join(path, f"{name}.csv"))
+
+
 if __name__ == "__main__":
     config = load_config(config_path="./config", config_name="model.yaml")
-    assert config != None, Exception("Failed to load configuration")
+    assert config != None, logger.debug("Failed to load configuration")
+    logger.info("The configuration is loaded")
 
     cora = load_dataset(config)
     dataset = cora[0]
@@ -66,11 +76,19 @@ if __name__ == "__main__":
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    dataset.to(device=device)
-    model.to(device=device)
+    dataset = dataset.to(device=device)
+    model = model.to(device=device)
+    logger.debug(f"Use '{device}' for training")
 
     optimizer = optim.Adam(model.parameters())
     loss = nn.CrossEntropyLoss()
 
     model.compile(optimizer=optimizer, loss=loss)
-    model.fit(config.training.epochs, dataset=dataset)
+    history = model.fit(config.training.epochs, dataset=dataset)
+    save_history(
+        path=config.training.save_path,
+        name=config.model.name,
+        history=history,
+    )
+
+    logger.critical("Saved history")
