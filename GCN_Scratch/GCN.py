@@ -13,6 +13,9 @@ class GCN(nn.Module):
         super(GCN, self).__init__()
         w = torch.empty(input_size, output_size)
         self.W = nn.Parameter(nn.init.kaiming_normal_(w))
+        self.D = None
+        self.I = None
+        self.A = None
 
     def _extract_D_I_from_edge_list(self, edges, number_of_nodes):
         D = torch.zeros((number_of_nodes, number_of_nodes))
@@ -34,21 +37,29 @@ class GCN(nn.Module):
         return A
 
     def forward(self, X, edge_list):
-        A = self._edge_list_to_adjacency_matrix(
+        self.A = self._edge_list_to_adjacency_matrix(
             edges=edge_list,
             number_of_nodes=X.shape[0],
         )
 
-        D = self._extract_D_I_from_edge_list(
+        self.D = self._extract_D_I_from_edge_list(
             edges=edge_list,
             number_of_nodes=X.shape[0],
         )
 
-        I = torch.eye(X.shape[0])
-        A_hat = A + I
-        z = torch.inverse(D) @ A_hat @ X @ self.W
+        self.I = torch.eye(X.shape[0])
+
+        self.to(X.device)
+        A_hat = self.A + self.I
+        z = torch.inverse(self.D) @ A_hat @ X @ self.W
         relu = nn.ReLU()
         return relu(z)
+
+    def to(self, device=None):
+        self.D = self.D.to(device)
+        self.I = self.I.to(device)
+        self.A = self.A.to(device)
+        return super(GCN, self).to(device)
 
     def __str__(self):
         input_size, output_size = self.W.shape
