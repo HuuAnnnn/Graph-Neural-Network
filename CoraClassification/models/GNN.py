@@ -61,6 +61,7 @@ class GNN(nn.Module):
                 out[dataset.train_mask],
                 dataset.y[dataset.train_mask],
             )
+
             loss.backward()
             self.optimizer.step()
             history["epoch"].append(epoch)

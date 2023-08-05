@@ -54,7 +54,7 @@ def build_model(config, input_size, hidden_size, output_size):
 
 def save_history(path, name, history):
     if not os.path.exists(path):
-        os.makedir(path)
+        os.makedirs(path)
 
     history_df = pd.DataFrame(history)
     history_df.to_csv(os.path.join(path, f"{name}.csv"))
