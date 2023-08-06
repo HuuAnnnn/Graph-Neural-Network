@@ -1,5 +1,5 @@
 import torch
-from torch import nn
+from torch import nn, sparse
 
 
 class GCN(nn.Module):
@@ -17,38 +17,31 @@ class GCN(nn.Module):
         self.I = None
         self.A = None
 
-    def _extract_D_I_from_edge_list(self, edges, number_of_nodes):
-        D = torch.zeros((number_of_nodes, number_of_nodes))
-        edges_list = list(zip(*edges))
-        for edge in edges_list:
-            src, dst = edge
-            D[src][src] += 1
-            D[dst][dst] += 1
-
+    def _extract_D_from_edge_list(self, edges):
+        src, target = torch.tensor(edges[0]), torch.tensor(edges[1])
+        all_nodes = torch.cat((src, target))
+        unique_nodes, node_counts = torch.unique(all_nodes, return_counts=True)
+        degrees = dict(zip(unique_nodes.tolist(), node_counts.tolist()))
+        num_node = len(unique_nodes)
+        D = torch.zeros((num_node, num_node))
+        for node, degree in degrees.items():
+            D[node][node] = degree
         return D
 
-    def _edge_list_to_adjacency_matrix(self, edges, number_of_nodes):
-        A = torch.zeros((number_of_nodes, number_of_nodes))
-        edges_list = list(zip(*edges))
-        for src, dst in edges_list:
-            A[src][dst] = 1
-            A[dst][src] = 1
-
+    def _edges_list_to_adj_matrix(self, edges_list, number_of_nodes):
+        source_nodes, target_nodes = edges_list[0], edges_list[1]
+        A = torch.zeros((number_of_nodes, number_of_nodes), dtype=torch.float)
+        A[source_nodes, target_nodes] = 1
         return A
 
     def forward(self, X, edge_list):
-        self.A = self._edge_list_to_adjacency_matrix(
-            edges=edge_list,
+        self.D = self._extract_D_from_edge_list(edges=edge_list).to(X.device)
+        edge_list = edge_list.long().to(X.device)
+        self.A = self._edges_list_to_adj_matrix(
+            edges_list=edge_list,
             number_of_nodes=X.shape[0],
         )
-
-        self.D = self._extract_D_I_from_edge_list(
-            edges=edge_list,
-            number_of_nodes=X.shape[0],
-        )
-
         self.I = torch.eye(X.shape[0])
-
         self.to(X.device)
         A_hat = self.A + self.I
         z = torch.inverse(self.D) @ A_hat @ X @ self.W
