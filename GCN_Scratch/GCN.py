@@ -20,12 +20,8 @@ class GCN(nn.Module):
     def _extract_D_from_edge_list(self, edges):
         src, target = torch.tensor(edges[0]), torch.tensor(edges[1])
         all_nodes = torch.cat((src, target))
-        unique_nodes, node_counts = torch.unique(all_nodes, return_counts=True)
-        degrees = dict(zip(unique_nodes.tolist(), node_counts.tolist()))
-        num_node = len(unique_nodes)
-        D = torch.zeros((num_node, num_node))
-        for node, degree in degrees.items():
-            D[node][node] = degree
+        _, node_counts = torch.unique(all_nodes, return_counts=True)
+        D = torch.diag(node_counts).type(torch.float)
         return D
 
     def _edges_list_to_adj_matrix(self, edges_list, number_of_nodes):
