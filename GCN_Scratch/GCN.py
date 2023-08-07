@@ -18,7 +18,7 @@ class GCN(nn.Module):
         self.A = None
 
     def _extract_D_from_edge_list(self, edges):
-        src, target = torch.tensor(edges[0]), torch.tensor(edges[1])
+        src, target = edges[0].clone(), edges[1].clone()
         all_nodes = torch.cat((src, target))
         _, node_counts = torch.unique(all_nodes, return_counts=True)
         D = torch.diag(node_counts).type(torch.float)
