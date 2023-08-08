@@ -1,9 +1,0 @@
-dataset:
-  name: Cora
-  save_path: .
-gcn_model:
-  latent_dim: 256
-training:
-  train_size_ratio: 0.8
-  epochs: 1000
-  verbose: 10

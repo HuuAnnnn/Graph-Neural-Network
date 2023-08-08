@@ -9,3 +9,10 @@ training:
   save_path: "./train_result"
   epochs: 1000
   verbose: 10
+visualization:
+  features:
+    - loss
+    - time
+  fig_path: ./visualization
+  is_save: true
+  fig_name: comparison

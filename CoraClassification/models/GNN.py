@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 from loguru import logger
+from datetime import timedelta, datetime
 
 
 class GNN(nn.Module):
@@ -51,10 +52,11 @@ class GNN(nn.Module):
         assert self.optimizer != None
         assert self.criterion != None
 
-        history = {"epoch": [], "loss": []}
+        history = {"epoch": [], "loss": [], "time": []}
         logger.critical("Start training!")
         for epoch in range(1, epochs + 1):
             self.train()
+            epoch_start_time = datetime.now()
             self.optimizer.zero_grad()
             out = self.forward(dataset.x, dataset.edge_index)
             loss = self.criterion(
@@ -64,11 +66,14 @@ class GNN(nn.Module):
 
             loss.backward()
             self.optimizer.step()
+            train_time_duration = datetime.now() - epoch_start_time
             history["epoch"].append(epoch)
             history["loss"].append(loss.cpu().detach().item())
-
+            history["time"].append(train_time_duration.total_seconds())
             if (epoch - 1) % verbose == 0:
-                logger.info(f"Epoch {epoch} | Loss: {loss.item()}")
+                logger.info(
+                    f"Epoch {epoch} | Time: {train_time_duration} | Loss: {loss.item()}"
+                )
         logger.critical("Stop training!")
 
         return history
