@@ -3,6 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 from loguru import logger
 from datetime import timedelta, datetime
+from utils.early_stopping import EarlyStopping
 
 
 class GNN(nn.Module):
@@ -52,7 +53,8 @@ class GNN(nn.Module):
         assert self.optimizer != None
         assert self.criterion != None
 
-        history = {"epoch": [], "loss": [], "time": []}
+        ers = EarlyStopping(patience=10, min_delta=0)
+        history = {"epoch": [], "loss": [], "accuracy": [], "time": []}
         logger.critical("Start training!")
         for epoch in range(1, epochs + 1):
             self.train()
@@ -64,16 +66,28 @@ class GNN(nn.Module):
                 dataset.y[dataset.train_mask],
             )
 
+            pred = torch.argmax(out[dataset.train_mask], dim=1)
+            pred = pred[pred == dataset.y[dataset.train_mask]]
+            accuracy = len(pred) / len(dataset.y[dataset.train_mask])
+
             loss.backward()
             self.optimizer.step()
             train_time_duration = datetime.now() - epoch_start_time
             history["epoch"].append(epoch)
             history["loss"].append(loss.cpu().detach().item())
+            history["accuracy"].append(accuracy)
             history["time"].append(train_time_duration.total_seconds())
+
             if (epoch - 1) % verbose == 0:
                 logger.info(
-                    f"Epoch {epoch} | Time: {train_time_duration} | Loss: {loss.item()}"
+                    f"Epoch {epoch} \t| Time: {train_time_duration} \t| Loss: {loss.item()} \t| Accuracy: {accuracy}"
                 )
+
+            is_stop = ers(loss)
+
+            if is_stop:
+                logger.debug(f"Training stop at {epoch}")
+                break
         logger.critical("Stop training!")
 
         return history

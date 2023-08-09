@@ -2,8 +2,8 @@ dataset:
   name: Cora
   save_path: .
 model:
-  name: "scratch"
-  latent_dim: 256
+  name: "torch"
+  latent_dim: 512
 training:
   train_size_ratio: 0.8
   save_path: "./train_result"
@@ -13,6 +13,7 @@ visualization:
   features:
     - loss
     - time
+    - accuracy
   fig_path: ./visualization
   is_save: true
   fig_name: comparison
