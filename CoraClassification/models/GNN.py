@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 from loguru import logger
-from datetime import timedelta, datetime
+from datetime import datetime
 from utils.early_stopping import EarlyStopping
 
 
