@@ -17,35 +17,28 @@ class GCN(nn.Module):
         self.I = None
         self.A = None
 
-    def _extract_D_from_edge_list(self, edges):
-        src, target = edges[0].clone(), edges[1].clone()
-        all_nodes = torch.cat((src, target))
-        _, node_counts = torch.unique(all_nodes, return_counts=True)
-        D = torch.diag(node_counts).type(torch.float)
-        return D
-
-    def _edges_list_to_adj_matrix(self, edges_list, number_of_nodes):
-        source_nodes, target_nodes = edges_list[0], edges_list[1]
+    def _edges_list_to_adj_matrix(self, edges, number_of_nodes):
+        source_nodes, target_nodes = edges[0], edges[1]
         A = torch.zeros((number_of_nodes, number_of_nodes), dtype=torch.float)
         A[source_nodes, target_nodes] = 1
         return A
 
     def forward(self, X, edge_list):
-        self.D = self._extract_D_from_edge_list(edges=edge_list).to(X.device)
         edge_list = edge_list.long().to(X.device)
         self.A = self._edges_list_to_adj_matrix(
-            edges_list=edge_list,
+            edges=edge_list,
             number_of_nodes=X.shape[0],
         )
         self.I = torch.eye(X.shape[0])
         self.to(X.device)
         A_hat = self.A + self.I
-        z = torch.inverse(self.D) @ A_hat @ X @ self.W
+        self.D = torch.sum(A_hat, dim=0).diag()
+        D_normed = self.D.inverse().sqrt()
+        z = D_normed @ A_hat @ D_normed @ X @ self.W
         relu = nn.ReLU()
         return relu(z)
 
     def to(self, device=None):
-        self.D = self.D.to(device)
         self.I = self.I.to(device)
         self.A = self.A.to(device)
         return super(GCN, self).to(device)

@@ -1,8 +1,8 @@
 dataset:
-  name: Cora
+  name: CiteSeer
   save_path: .
 model:
-  name: "torch"
+  name: "scratch"
   latent_dim: 512
 training:
   train_size_ratio: 0.8

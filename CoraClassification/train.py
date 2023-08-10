@@ -32,13 +32,17 @@ def load_model(model_name):
 
 
 def load_dataset(config):
-    cora = datasets.Planetoid(
+    dataset = datasets.Planetoid(
         root=config.dataset.save_path,
         name=config.dataset.name,
         transform=NormalizeFeatures(),
     )
 
-    return cora
+    return dataset
+
+
+def dataset_description(dataset):
+    print(dataset.__dict__)
 
 
 def build_model(config, input_size, hidden_size, output_size):
@@ -87,7 +91,7 @@ if __name__ == "__main__":
     history = model.fit(config.training.epochs, dataset=dataset)
     save_history(
         path=config.training.save_path,
-        name=config.model.name,
+        name=f"{config.dataset.name}_{config.model.name}",
         history=history,
     )
 
