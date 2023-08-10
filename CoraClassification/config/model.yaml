@@ -1,5 +1,5 @@
 dataset:
-  name: CiteSeer
+  name: PubMed
   save_path: .
 model:
   name: "scratch"
