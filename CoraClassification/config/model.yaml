@@ -1,6 +1,6 @@
 dataset:
-  name: PubMed
-  save_path: .
+  name: CiteSeer
+  save_path: ./data
 model:
   name: "scratch"
   latent_dim: 512

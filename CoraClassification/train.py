@@ -15,7 +15,7 @@ from loguru import logger
 
 from models import GNN
 
-sys.path.append(os.path.abspath(os.path.join("..", "GCN_scratch")))
+sys.path.append(os.path.abspath(os.path.join("..", "GCN")))
 from GCN import GCN
 
 
@@ -41,8 +41,15 @@ def load_dataset(config):
     return dataset
 
 
-def dataset_description(dataset):
-    print(dataset.__dict__)
+def describe(dataset):
+    print("Dataset describe:")
+    for name, value in dataset.__dict__.items():
+        if isinstance(value, str):
+            print(f"\t{name.capitalize()}: {value}")
+
+    for name, value in dataset[0].__dict__["_store"].items():
+        if torch.is_tensor(value):
+            print(f"\t{name.capitalize()}: {list(value.shape)}")
 
 
 def build_model(config, input_size, hidden_size, output_size):
@@ -69,14 +76,15 @@ if __name__ == "__main__":
     assert config != None, logger.debug("Failed to load configuration")
     logger.info("The configuration is loaded")
 
-    cora = load_dataset(config)
-    dataset = cora[0]
+    dataset_raw = load_dataset(config)
+    dataset = dataset_raw[0]
+    describe(dataset_raw)
 
     model = build_model(
         config,
-        cora.num_node_features,
+        dataset_raw.num_node_features,
         config.model.latent_dim,
-        cora.num_classes,
+        dataset_raw.num_classes,
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
