@@ -5,7 +5,7 @@ from torch.nn import functional as F
 
 from torch_geometric import datasets
 from torch_geometric.transforms import NormalizeFeatures
-from torch_geometric.nn import GCNConv
+from torch_geometric.nn import GCNConv, GATConv
 
 import pandas as pd
 import os
@@ -16,7 +16,9 @@ from loguru import logger
 from models import GNN
 
 sys.path.append(os.path.abspath(os.path.join("..", "GCN")))
+sys.path.append(os.path.abspath(os.path.join("..", "GAT")))
 from GCN import GCN
+from GAT import GAT
 
 
 def load_config(config_name, config_path) -> None:
@@ -27,7 +29,12 @@ def load_config(config_name, config_path) -> None:
 
 
 def load_model(model_name):
-    models = {"torch": GCNConv, "scratch": GCN}
+    models = {
+        "torch": GCNConv,
+        "scratch": GCN,
+        "gat": GATConv,
+        "gat_scratch": GAT,
+    }
     return models[model_name]
 
 
@@ -96,6 +103,7 @@ if __name__ == "__main__":
     loss = nn.CrossEntropyLoss()
 
     model.compile(optimizer=optimizer, loss=loss)
+    logger.debug(model)
     history = model.fit(config.training.epochs, dataset=dataset)
     save_history(
         path=config.training.save_path,
