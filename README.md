@@ -5,3 +5,4 @@ A repository is a place where I will store all my practice notebooks about the G
   1. [Cora - Node classification](./CoraClassification/)
   2. [Graph Convolution network from scratch](./GCN_Scratch/)
   3. [Graph Attention Network from scratch (Fail)](./GAT/)
+  4. [Traffic Forecasting (Fail - OOM on GPU and CPU)](./)
