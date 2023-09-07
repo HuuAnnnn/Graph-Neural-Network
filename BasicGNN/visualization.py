@@ -56,8 +56,8 @@ if __name__ == "__main__":
     csv_files = get_csv_file("./train_result")
     dfs = csv_to_df(csv_files)
     plot(
-        dfs,
-        config.visualization.features,
+        dfs=dfs,
+        features=config.visualization.features,
         is_save=config.visualization.is_save,
         fig_name=config.visualization.fig_name,
         fig_path=config.visualization.fig_path,
