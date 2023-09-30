@@ -238,5 +238,5 @@ if __name__ == "__main__":
         )
         elapsed = time.process_time() - t
         print(
-            f">>> The dataset size '{convert_size_to_tag(sample_rate)}' done! Time {elapsed}"
+            f">>> The dataset size '{convert_size_to_tag(sample_rate)}' done! Time {elapsed} (s)"
         )
