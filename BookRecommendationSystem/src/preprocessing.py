@@ -309,11 +309,16 @@ def get_data_by_ratio(
         )
 
         elapsed = time.process_time() - t
+<<<<<<< HEAD
         type_ = convert_size_to_tag(sample_rate)
         print(f">>> The dataset size '{type_}' done! Time {elapsed}")
         save_description(
             describe(preprocessed_data),
             f"{save_path}_{type_}_description.txt",
+=======
+        print(
+            f">>> The dataset size '{convert_size_to_tag(sample_rate)}' done! Time {elapsed} (s)"
+>>>>>>> d33f3b572e2b226d691a19f7b5dce02759e2200a
         )
 
         datasets.append(
